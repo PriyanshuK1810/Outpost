@@ -16,5 +16,20 @@ def get_roadmap(roadmap_id : int, db : Session = Depends(get_db)):
     if roadmap is None:
         raise HTTPException(status_code = 404, detail = "Roadmap Not Found")
     return roadmap
+@router.post("/{roadmap_id}/phases", response_model = schemas.PhaseRead)
+def create_phase(roadmap_id : int, payload : schemas.PhaseCreate, db : Session = Depends(get_db)):
+    phase = models.Phase(roadmap_id = roadmap_id, **payload.model_dump())
+    db.add(phase)
+    db.commit()
+    db.refresh(phase)
+    return phase
+@router.delete("/{roadmap_id}", status_code = 204)
+def delete_roadmap(roadmap_id : int, db : Session = Depends(get_db)):
+    roadmap = db.query(models.Roadmap).filter(models.Roadmap.id == roadmap_id).first()
+    if roadmap is None:
+        raise HTTPException(status_code = 404, detail = "Roadmap Not Found")
+    db.delete(roadmap)
+    db.commit()
+    
 
 

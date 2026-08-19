@@ -15,3 +15,10 @@ def update_topic(topic_id : int, payload : schemas.TopicUpdate, db : Session = D
     db.commit()
     db.refresh(topic)
     return topic
+@router.delete("/{topic_id}", status_code = 204)
+def delete_topic(topic_id : int, db : Session = Depends(get_db)):
+    topic = db.query(models.Topic).filter(models.Topic.id == topic_id).first()
+    if topic is None:
+        raise HTTPException(status_code = 404, detail = "Topic Not Found")
+    db.delete(topic)
+    db.commit()
